@@ -240,6 +240,38 @@ Respuesta:
  "balance": 900.0
 }
 ```
+#### Consultar transacciones usuario
+
+```http
+GET /user/me/transactions
+```
+
+Ejemplo:
+
+```http
+GET /user/me/transactions
+```
+
+Respuesta:
+
+```json
+[
+    {
+        "id": 2,
+        "operation": "WITHDRAWAL",
+        "amount": 100.0,
+        "finalBlance": 1200.0,
+        "createdAt": "2026-10-12T19:58:09.446716"
+    },
+    {
+        "id": 1,
+        "operation": "DEPOSIT",
+        "amount": 200.0,
+        "finalBlance": 1300.0,
+        "createdAt": "2026-10-12T19:55:05.281697"
+    }
+]
+```
 
 ---
 

@@ -1,5 +1,7 @@
 package com.user_service.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,11 +11,15 @@ import com.user_service.dto.AmountRequest;
 import com.user_service.dto.BalanceResponse;
 import com.user_service.dto.RegisterRequest;
 import com.user_service.dto.RegisterResponse;
+import com.user_service.dto.TransactionResponse;
 import com.user_service.dto.UserResponse;
 import com.user_service.exception.EmailAlreadyExistsException;
 import com.user_service.exception.InsufficientBalanceException;
 import com.user_service.exception.UserNotExistsException;
+import com.user_service.model.Transaction;
+import com.user_service.model.TransactionType;
 import com.user_service.model.User;
+import com.user_service.repository.TransactionRepo;
 import com.user_service.repository.UserRepo;
 import com.user_service.security.JwtService;
 
@@ -25,6 +31,8 @@ public class UserService {
 	private PasswordEncoder passwordEncoder;
 	@Autowired 
 	private JwtService jwtService;
+	@Autowired
+	private TransactionRepo transactionRepo;
 	
 	public RegisterResponse registerUser(RegisterRequest request) {
 		
@@ -65,9 +73,12 @@ public class UserService {
 		User user = userRepo.findById(userId).orElseThrow(() ->
 		            new UserNotExistsException("Usuario no encontrado"));
 
+		Transaction transaction = new Transaction(user, TransactionType.DEPOSIT, amount, user.getBalance() + amount);
+		
 		user.setBalance(user.getBalance() + amount);
 		
 		userRepo.save(user);
+		transactionRepo.save(transaction);
 		
 		return new BalanceResponse(user.getBalance());
 	}
@@ -81,10 +92,28 @@ public class UserService {
 	        throw new InsufficientBalanceException("No tienes saldo suficiente para realizar esta operación");
 	    }
 		
+		Transaction transaction = new Transaction(user, TransactionType.WITHDRAWAL, amount, user.getBalance() - amount);
+				
 		user.setBalance(user.getBalance() - amount);
 		
 		userRepo.save(user);
+		transactionRepo.save(transaction);
 		
 		return new BalanceResponse(user.getBalance());
+	}
+	
+	
+	public List<TransactionResponse> getTransactions(Long userId) {
+		userRepo.findById(userId).orElseThrow(() ->
+        			new UserNotExistsException("Usuario no encontrado"));
+		
+		return transactionRepo.findByUserIdOrderByCreatedAtDesc(userId).stream().
+				map(transaction -> new TransactionResponse(
+						transaction.getId(),
+						transaction.getOperation(),
+						transaction.getAmount(),
+						transaction.getFinalBalance(),
+						transaction.getCreatedAt()))
+				.toList();
 	}
 }

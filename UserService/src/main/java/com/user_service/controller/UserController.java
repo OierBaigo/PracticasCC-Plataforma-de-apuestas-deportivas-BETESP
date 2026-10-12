@@ -1,5 +1,7 @@
 package com.user_service.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +17,7 @@ import com.user_service.dto.AmountRequest;
 import com.user_service.dto.BalanceResponse;
 import com.user_service.dto.RegisterRequest;
 import com.user_service.dto.RegisterResponse;
+import com.user_service.dto.TransactionResponse;
 import com.user_service.dto.UserResponse;
 import com.user_service.service.UserService;
 
@@ -58,5 +61,12 @@ public class UserController {
 	public BalanceResponse withdraw(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody AmountRequest request) {
 		Long userId = Long.valueOf(jwt.getSubject());
 		return userService.withdraw(userId, request.amount());
+	}
+	
+	@GetMapping("/me/transactions")
+	@ResponseStatus(HttpStatus.OK)
+	public List<TransactionResponse> getTransactions(@AuthenticationPrincipal Jwt jwt) {
+		Long userId = Long.valueOf(jwt.getSubject());
+		return userService.getTransactions(userId);
 	}
 }
