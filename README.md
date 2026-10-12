@@ -99,7 +99,7 @@ El User Service gestiona los usuarios y su saldo virtual.
 #### Registrar usuario
 
 ```http
-POST /users
+POST /user/register
 Content-Type: application/json
 ```
 
@@ -107,7 +107,35 @@ Payload:
 
 ```json
 {
+  "email": "juan@example.com",
+  "password": "********",
   "username": "juan123",
+}
+```
+
+Respuesta:
+
+```json
+{
+  "id": 15,
+  "email": "juan@example.com",
+  "username": "juan123",
+  "balance": 1000.0
+
+}
+```
+
+#### Login de usuario
+
+```http
+POST /auth/login
+Content-Type: application/json
+```
+
+Payload:
+
+```json
+{
   "email": "juan@example.com",
   "password": "********"
 }
@@ -118,21 +146,23 @@ Respuesta:
 ```json
 {
   "id": 15,
+  "email": "juan@example.com",
   "username": "juan123",
-  "email": "juan@example.com"
+  "balance": 1000.0
+
 }
 ```
 
 #### Consultar usuario
 
 ```http
-GET /users/{id}
+GET /user/me
 ```
 
 Ejemplo:
 
 ```http
-GET /users/15
+GET /user/me
 ```
 
 Respuesta:
@@ -140,24 +170,9 @@ Respuesta:
 ```json
 {
   "id": 15,
+  "email": "juan@example.com",
   "username": "juan123",
-  "email": "juan@example.com"
-}
-```
-
-#### Consultar saldo virtual
-
-```http
-GET /users/{id}/balance
-```
-
-Respuesta:
-
-```json
-{
-  "userId": 15,
-  "balance": 1000.00,
-  "currency": "VIRTUAL"
+  "balance": 1000.0
 }
 ```
 
