@@ -196,6 +196,51 @@ Respuesta:
 }
 ```
 
+#### Depositar saldo usuario
+
+```http
+POST /user/me/deposit
+Content-Type: application/json
+```
+
+Payload:
+
+```json
+{
+  "amount": 100.0
+}
+```
+
+Respuesta:
+
+```json
+{
+ "balance": 1100.0
+}
+```
+#### Retirar saldo usuario
+
+```http
+POST /user/me/withdraw
+Content-Type: application/json
+```
+
+Payload:
+
+```json
+{
+  "amount": 100.0
+}
+```
+
+Respuesta:
+
+```json
+{
+ "balance": 900.0
+}
+```
+
 ---
 
 ### Match Service
