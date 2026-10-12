@@ -176,6 +176,26 @@ Respuesta:
 }
 ```
 
+#### Consultar balance usuario
+
+```http
+GET /user/me/balance
+```
+
+Ejemplo:
+
+```http
+GET /user/me/balance
+```
+
+Respuesta:
+
+```json
+{
+  "balance": 1000.0
+}
+```
+
 ---
 
 ### Match Service

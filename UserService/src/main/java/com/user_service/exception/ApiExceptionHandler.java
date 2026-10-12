@@ -32,4 +32,14 @@ public class ApiExceptionHandler {
 	public ResponseEntity<Map<String,String>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("mensaje", ex.getMessage()));
 	}
+	
+	@ExceptionHandler(UserNotExistsException.class)
+	public ResponseEntity<Map<String,String>> handleUserNotExistsException(UserNotExistsException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("mensaje", ex.getMessage()));
+	}
+	
+	@ExceptionHandler(InsufficientBalanceException.class)
+	public ResponseEntity<Map<String,String>> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("mensaje", ex.getMessage()));
+	}
 }

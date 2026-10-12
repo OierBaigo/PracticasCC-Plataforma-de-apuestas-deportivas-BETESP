@@ -34,6 +34,7 @@ public class User {
 	@Column(nullable = false)
 	private String username;
 	
+	@Setter
 	@Column(nullable = false)
 	private Double balance = 1000.0;
 	
