@@ -5,10 +5,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.user_service.dto.RegisterRequest;
+import com.user_service.dto.RegisterResponse;
 import com.user_service.dto.UserResponse;
 import com.user_service.exception.EmailAlreadyExistsException;
+import com.user_service.exception.UserNotExistsException;
 import com.user_service.model.User;
 import com.user_service.repository.UserRepo;
+import com.user_service.security.JwtService;
 
 @Service
 public class UserService {
@@ -16,8 +19,10 @@ public class UserService {
 	private UserRepo userRepo;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired 
+	private JwtService jwtService;
 	
-	public UserResponse registerUser(RegisterRequest request) {
+	public RegisterResponse registerUser(RegisterRequest request) {
 		
 		if(userRepo.existsByEmail(request.email())) {
 			throw new EmailAlreadyExistsException("El email ya existe");
@@ -30,6 +35,17 @@ public class UserService {
 		
 		User savedUser = userRepo.save(user);
 		
-		return new UserResponse(savedUser.getId(),savedUser.getEmail(), savedUser.getUsername(), savedUser.getBalance());
+		String token = jwtService.generateToken(savedUser.getId());
+		
+		UserResponse userResponse = new UserResponse(savedUser.getId(),savedUser.getEmail(), savedUser.getUsername(), savedUser.getBalance());
+		
+		return new RegisterResponse(userResponse, token, "Bearer");
+	}
+	
+	public UserResponse getUserById(Long userId) {
+		User user = userRepo.findById(userId).orElseThrow(() ->
+		            new UserNotExistsException("Usuario no encontrado"));
+
+		return new UserResponse(user.getId(),user.getEmail(), user.getUsername(), user.getBalance());
 	}
 }

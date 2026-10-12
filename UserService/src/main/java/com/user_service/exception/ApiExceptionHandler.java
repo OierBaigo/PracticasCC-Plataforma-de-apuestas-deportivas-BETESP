@@ -27,4 +27,9 @@ public class ApiExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("mensaje", mensaje));
     }
+	
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<Map<String,String>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("mensaje", ex.getMessage()));
+	}
 }

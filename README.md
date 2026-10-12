@@ -117,11 +117,14 @@ Respuesta:
 
 ```json
 {
-  "id": 15,
-  "email": "juan@example.com",
-  "username": "juan123",
-  "balance": 1000.0
-
+    "user": {
+        "id": 5,
+        "email": "prueba1791813235076@betesp.com",
+        "username": "usuario1791813235076",
+        "balance": 1000.0
+    },
+    "accessToken": "eyJraWQiOiJlcWlXWXByZ2xUVDNRMU4tbGxrNEVNT0pKdHVPRGJPaGVXQzJxVjV3bUNvIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3OTE4MTY4MzUsInN1YiI6IjUiLCJpYXQiOjE3OTE4MTMyMzV9.RI0O85PQj77i0AyjL7i8wI3UjtsgTOIXHFbQLKN_1q4",
+    "tokenType": "Bearer"
 }
 ```
 
@@ -145,11 +148,8 @@ Respuesta:
 
 ```json
 {
-  "id": 15,
-  "email": "juan@example.com",
-  "username": "juan123",
-  "balance": 1000.0
-
+ "accessToken": "eyJraWQiOiJlcWlXWXByZ2xUVDNRMU4tbGxrNEVNT0pKdHVPRGJPaGVXQzJxVjV3bUNvIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3OTE4MTY4MzUsInN1YiI6IjUiLCJpYXQiOjE3OTE4MTMyMzV9.RI0O85PQj77i0AyjL7i8wI3UjtsgTOIXHFbQLKN_1q4",
+  "tokenType": "Bearer"
 }
 ```
 
