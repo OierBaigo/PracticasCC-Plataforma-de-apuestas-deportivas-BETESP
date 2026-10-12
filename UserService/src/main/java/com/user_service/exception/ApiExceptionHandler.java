@@ -35,7 +35,7 @@ public class ApiExceptionHandler {
 	
 	@ExceptionHandler(UserNotExistsException.class)
 	public ResponseEntity<Map<String,String>> handleUserNotExistsException(UserNotExistsException ex) {
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("mensaje", ex.getMessage()));
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensaje", ex.getMessage()));
 	}
 	
 	@ExceptionHandler(InsufficientBalanceException.class)
