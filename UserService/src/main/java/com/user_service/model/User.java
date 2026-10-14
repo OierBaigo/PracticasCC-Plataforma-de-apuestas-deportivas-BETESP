@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,6 +39,10 @@ public class User {
 	@Setter
 	@Column(nullable = false)
 	private Double balance = 1000.0;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, updatable = false)
+	private UserRole role = UserRole.USER;
 	
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();

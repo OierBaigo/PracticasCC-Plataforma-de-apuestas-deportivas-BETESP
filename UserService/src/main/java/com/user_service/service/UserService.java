@@ -46,7 +46,7 @@ public class UserService {
 		
 		User savedUser = userRepo.save(user);
 		
-		String token = jwtService.generateToken(savedUser.getId());
+		String token = jwtService.generateToken(savedUser);
 		
 		UserResponse userResponse = new UserResponse(savedUser.getId(),savedUser.getEmail(), savedUser.getUsername(), savedUser.getBalance());
 		

@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.stereotype.Service;
 
+import com.user_service.model.User;
+
 @Service
 public class JwtService {
 
@@ -29,11 +31,12 @@ public class JwtService {
                         .build();
     }
 
-    public String generateToken(Long id) {
+    public String generateToken(User user) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(id.toString())
+                .subject(user.getId().toString())
+                .claim("role", user.getRole().name())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(3600))
                 .build();
