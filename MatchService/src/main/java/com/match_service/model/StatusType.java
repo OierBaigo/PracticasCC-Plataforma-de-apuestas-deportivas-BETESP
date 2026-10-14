@@ -8,5 +8,7 @@ public enum StatusType {
 	PAUSED,
 	POSTPONED,
 	SUSPENDED,
-	CANCELLED
+	CANCELLED,
+	TIMED,
+	AWARDED
 }

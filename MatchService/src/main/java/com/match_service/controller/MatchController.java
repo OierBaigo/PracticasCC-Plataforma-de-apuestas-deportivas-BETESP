@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.match_service.dto.MatchResponse;
+import com.match_service.dto.SyncMatchRequest;
 import com.match_service.model.Match;
 import com.match_service.service.MatchService;
 
@@ -53,6 +54,12 @@ public class MatchController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public Match createMatch(@RequestBody Match match) {
 	    return matchService.saveMatch(match);
+	}
+	
+	@PostMapping(value = "/internal/sync")
+	@ResponseStatus(HttpStatus.CREATED)
+	public int syncMatches(@RequestBody SyncMatchRequest request) {
+	    return matchService.syncLaLigaMatches(request.season());
 	}
 	
 	@GetMapping("/competitions/{competition}/matches")

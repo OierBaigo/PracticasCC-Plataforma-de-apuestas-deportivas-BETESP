@@ -1,10 +1,10 @@
 package com.match_service.dto;
 
-public record FootballDataMatchDto(
+public record FootballDataMatchResponse(
     Long id,
     String utcDate,
     String status,
-    Integer matchDay,
+    Integer matchday,
     FootballDataTeamDto homeTeam,
     FootballDataTeamDto awayTeam,
     FootballDataCompetitionDto competition,
