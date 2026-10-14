@@ -86,8 +86,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(
-            @Value("${jwt.secret}") String secret) {
+    public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secret) {
 
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         SecretKey key = new SecretKeySpec(keyBytes, "HmacSHA256");

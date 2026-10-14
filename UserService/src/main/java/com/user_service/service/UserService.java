@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.user_service.dto.AmountRequest;
 import com.user_service.dto.BalanceResponse;
 import com.user_service.dto.RegisterRequest;
 import com.user_service.dto.RegisterResponse;
