@@ -1,0 +1,7 @@
+package com.odds_service.model;
+
+public enum ResultType {
+	HOME_WIN,
+    DRAW,
+    AWAY_WIN
+}

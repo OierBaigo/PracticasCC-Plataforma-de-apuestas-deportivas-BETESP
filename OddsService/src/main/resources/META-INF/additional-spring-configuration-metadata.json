@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "match-service.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'match-service.base-url'"
+  },
+  {
+    "name": "match-service.matches-path",
+    "type": "java.lang.String",
+    "description": "A description for 'match-service.matches-path'"
+  },
+  {
+    "name": "odds.model.home-advantage",
+    "type": "java.lang.String",
+    "description": "A description for 'odds.model.home-advantage'"
+  },
+  {
+    "name": "odds.scheduler.fixed-delay-ms",
+    "type": "java.lang.String",
+    "description": "A description for 'odds.scheduler.fixed-delay-ms'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "odds.model.margin",
+    "type": "java.lang.String",
+    "description": "A description for 'odds.model.margin'"
+  }
+]}
