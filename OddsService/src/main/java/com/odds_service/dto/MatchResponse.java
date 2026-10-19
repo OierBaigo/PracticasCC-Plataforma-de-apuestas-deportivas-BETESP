@@ -1,3 +1,6 @@
 package com.odds_service.dto;
 
-public record MatchResponse(Long id, String homeTeam, String awayTeam, String status) {}
+import java.time.LocalDateTime;
+
+public record MatchResponse(Long id, String homeTeam, String awayTeam, 
+		LocalDateTime dateTime, String competition, Integer matchDay, String status, Integer homeScore, Integer awayScore) {}

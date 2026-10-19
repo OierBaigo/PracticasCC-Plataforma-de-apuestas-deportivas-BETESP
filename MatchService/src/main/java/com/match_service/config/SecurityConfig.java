@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
-            	    .jwt(Customizer.withDefaults())
+            	    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             	    .authenticationEntryPoint((request, response, exception) -> {
             	        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             	        response.setContentType("application/json");

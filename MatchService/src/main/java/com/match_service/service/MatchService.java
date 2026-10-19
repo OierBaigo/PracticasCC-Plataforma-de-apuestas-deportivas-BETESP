@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClient;
 
 import com.match_service.dto.FootballDataMatchResponse;
 import com.match_service.dto.FootballDataMatchesResponse;
+import com.match_service.exception.MatchNotExistsException;
 import com.match_service.model.Match;
 import com.match_service.model.StatusType;
 import com.match_service.repository.MatchRepo;
@@ -26,8 +27,9 @@ public class MatchService {
     }
 
     public Match getMatchById(Long id) {
-        return matchRepository.findById(id)
-                .orElse(null);
+    	Match match = matchRepository.findById(id).orElseThrow(() ->
+								new MatchNotExistsException("Partido no encontrado"));
+        return match;
     }
 
     public Match saveMatch(Match match) {

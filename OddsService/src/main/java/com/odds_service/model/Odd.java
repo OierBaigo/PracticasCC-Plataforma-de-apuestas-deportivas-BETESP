@@ -43,7 +43,7 @@ public class Odd {
 	
 	@Setter
 	@Column(nullable = false)
-	private boolean active;
+	private boolean active = true;
 	
 	public Odd(Long matchId, ResultType resultType, Double value) {
 		this.matchId = matchId;

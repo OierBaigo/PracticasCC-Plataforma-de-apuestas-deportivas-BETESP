@@ -1,5 +1,6 @@
 package com.odds_service.controller;
 
+import com.odds_service.dto.OddResponse;
 import com.odds_service.model.Odd;
 import com.odds_service.repository.OddRepo;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ public class InternalOddsController {
     }
 
     @GetMapping("/match/{matchId}")
-    public List<Odd> getOddsByMatch(@PathVariable Long matchId) {
+    public List<OddResponse> getOddsByMatch(@PathVariable Long matchId) {
 
         if (matchId <= 0) {
             throw new ResponseStatusException(
@@ -28,6 +29,14 @@ public class InternalOddsController {
             );
         }
 
-        return oddRepository.findByMatchIdAndActiveTrue(matchId);
+        return oddRepository.findByMatchIdAndActiveTrue(matchId)
+        		.stream()
+        		.map(odd -> new OddResponse(
+        				odd.getId(),
+        				odd.getMatchId(),
+        				odd.getResultType(),
+        				odd.getValue(),
+        				true))
+        		.toList();
     }
 }

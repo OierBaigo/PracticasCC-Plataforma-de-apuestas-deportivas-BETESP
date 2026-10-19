@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "match-service.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'match-service.base-url'"
+  },
+  {
+    "name": "user-service.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'user-service.base-url'"
+  },
+  {
+    "name": "odds-service.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'odds-service.base-url'"
+  },
+  {
+    "name": "user-service.balance-path",
+    "type": "java.lang.String",
+    "description": "A description for 'user-service.balance-path'"
+  },
+  {
+    "name": "user-service.reserve-path",
+    "type": "java.lang.String",
+    "description": "A description for 'user-service.reserve-path'"
+  },
+  {
+    "name": "user-service.withdraw-path",
+    "type": "java.lang.String",
+    "description": "A description for 'user-service.withdraw-path'"
+  }
+]}

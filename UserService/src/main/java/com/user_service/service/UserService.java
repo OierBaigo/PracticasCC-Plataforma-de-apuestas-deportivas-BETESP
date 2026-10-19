@@ -69,7 +69,7 @@ public class UserService {
 	
 	@Transactional
 	public BalanceResponse deposit(Long userId, Double amount) {
-		User user = userRepo.findById(userId).orElseThrow(() ->
+		User user = userRepo.findByIdForUpdate(userId).orElseThrow(() ->
 		            new UserNotExistsException("Usuario no encontrado"));
 
 		Transaction transaction = new Transaction(user, TransactionType.DEPOSIT, amount, user.getBalance() + amount);
@@ -84,7 +84,7 @@ public class UserService {
 	
 	@Transactional
 	public BalanceResponse withdraw(Long userId, Double amount) {
-		User user = userRepo.findById(userId).orElseThrow(() ->
+		User user = userRepo.findByIdForUpdate(userId).orElseThrow(() ->
 		            new UserNotExistsException("Usuario no encontrado"));
 		
 		if (user.getBalance() < amount) {

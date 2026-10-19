@@ -79,8 +79,7 @@ public class OddsUpdateService {
             existing.get().setValue(value);
             oddRepository.save(existing.get());
         } else {
-            oddRepository.save(new Odd(matchId, resultType, value)
-            );
+            oddRepository.save(new Odd(matchId, resultType, value));
         }
     }
 }
