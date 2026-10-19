@@ -300,8 +300,11 @@ Respuesta:
     "competition": "Primera División",
     "homeTeam": "Real Madrid",
     "awayTeam": "Barcelona",
-    "date": "2026-10-20T20:00:00",
-    "status": "SCHEDULED"
+    "dateTime": "2026-10-20T20:00:00",
+    "status": "FINISHED",
+    "matchDay": 8,
+    "homeGoals": 2,
+    "awayGoals": 1
   }
 ]
 ```
@@ -326,8 +329,9 @@ Respuesta:
   "competition": "Primera División",
   "homeTeam": "Real Madrid",
   "awayTeam": "Barcelona",
-  "date": "2026-10-20T20:00:00",
+  "dateTime": "2026-10-20T20:00:00",
   "status": "FINISHED",
+  "matchDay": 8,
   "homeGoals": 2,
   "awayGoals": 1
 }
@@ -350,7 +354,6 @@ Payload:
 
 ```json
 {
-  "userId": 15,
   "matchId": 123,
   "prediction": "HOME_WIN",
   "amount": 100
