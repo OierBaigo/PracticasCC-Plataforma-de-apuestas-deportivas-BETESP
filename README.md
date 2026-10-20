@@ -285,10 +285,8 @@ El Match Service gestiona competiciones, equipos y partidos, además de sincroni
 GET /matches
 ```
 
-Se podrán utilizar parámetros para filtrar los resultados, por ejemplo:
-
 ```http
-GET /matches?date=2026-10-20&status=SCHEDULED
+GET /matches
 ```
 
 Respuesta:
@@ -336,6 +334,57 @@ Respuesta:
   "awayGoals": 1
 }
 ```
+#### Consultar una competición
+
+```http
+GET /matches/competitions/{competition}/matches
+```
+
+Ejemplo:
+
+```http
+GET /matches/competitions/LaLiga/matches
+```
+
+Respuesta:
+
+```json
+[
+  {
+    "id": 123,
+    "competition": "Primera División",
+    "homeTeam": "Real Madrid",
+    "awayTeam": "Barcelona",
+    "dateTime": "2026-10-20T20:00:00",
+    "status": "FINISHED",
+    "matchDay": 8,
+    "homeGoals": 2,
+    "awayGoals": 1
+  }
+]
+```
+#### Sincronizar manualmente con la API externa
+
+Este endpoint solo puede ser ejecutado manualmente por un rol ADMIN. Devuelve el número de partidos.
+
+```http
+POST /matches/internal/sync
+Content-Type: application/json
+```
+
+Payload:
+
+```json
+{
+  "season": 2026
+}
+```
+
+Respuesta:
+
+```json
+300
+```
 
 ---
 
@@ -355,8 +404,8 @@ Payload:
 ```json
 {
   "matchId": 123,
-  "prediction": "HOME_WIN",
-  "amount": 100
+  "resultType": "HOME_WIN",
+  "stake": 100
 }
 ```
 
@@ -372,29 +421,32 @@ Respuesta:
 
 ```json
 {
-  "betId": 456,
+  "id": 456,
   "userId": 15,
   "matchId": 123,
-  "prediction": "HOME_WIN",
-  "amount": 100,
-  "odds": 2.10,
-  "potentialWin": 210.00,
-  "status": "OPEN"
+  "resultType": "HOME_WIN",
+  "stake": 100,
+  "oddsAtPlacement": 2.10,
+  "potentialReturn": 210.00,
+  "status": "PENDING",
+  "createdAt": "2026-10-12T19:55:05.281697"
 }
 ```
 
 La cuota utilizada se almacenará junto con la predicción para garantizar que posteriores cambios en las cuotas no modifiquen una predicción ya realizada.
 
-#### Consultar las predicciones de un usuario
+#### Consultar apuestas pendientes de un partido
+
+Este endpoint solo podra ser utilizado por el rol SERVICE. SettlementService sera el que use este endpoint para cerrar las apuestas una vez hayan finalizado los partidos.
 
 ```http
-GET /users/{userId}/bets
+GET /bets/internal/match/{matchId}
 ```
 
 Ejemplo:
 
 ```http
-GET /users/15/bets
+GET /bets/internal/match/123
 ```
 
 Respuesta:
@@ -402,41 +454,28 @@ Respuesta:
 ```json
 [
   {
-    "betId": 456,
+    "id": 456,
+    "userId": 15,
     "matchId": 123,
-    "prediction": "HOME_WIN",
-    "amount": 100,
-    "odds": 2.10,
-    "status": "OPEN"
+    "resultType": "HOME_WIN",
+    "stake": 100,
+    "oddsAtPlacement": 2.10,
+    "potentialReturn": 210.00,
+    "status": "PENDING",
+    "createdAt": "2026-10-12T19:55:05.281697"
+  },
+  {
+    "id": 504,
+    "userId": 35,
+    "matchId": 123,
+    "resultType": "HOME_WIN",
+    "stake": 200,
+    "oddsAtPlacement": 2.10,
+    "potentialReturn": 420.00,
+    "status": "PENDING",
+    "createdAt": "2026-10-12T19:55:05.281697"
   }
 ]
-```
-
-#### Consultar una predicción
-
-```http
-GET /bets/{id}
-```
-
-Ejemplo:
-
-```http
-GET /bets/456
-```
-
-Respuesta:
-
-```json
-{
-  "betId": 456,
-  "userId": 15,
-  "matchId": 123,
-  "prediction": "HOME_WIN",
-  "amount": 100,
-  "odds": 2.10,
-  "status": "WON",
-  "payout": 210.00
-}
 ```
 
 ---
@@ -448,25 +487,24 @@ El Odds Service gestiona las cuotas utilizadas por la plataforma. Este servicio 
 #### Consultar cuotas de un partido
 
 ```http
-GET /odds/matches/{matchId}
+GET /internal/odds/match/{matchId}
 ```
 
 Ejemplo:
 
 ```http
-GET /odds/matches/123
+GET /internal/odds/match/123
 ```
 
 Respuesta:
 
 ```json
 {
+  "id": 302,
   "matchId": 123,
-  "markets": {
-    "HOME_WIN": 2.10,
-    "DRAW": 3.40,
-    "AWAY_WIN": 3.20
-  }
+  "resultType": "HOME_WIN",
+  "value": 2.34,
+  "active": true
 }
 ```
 
@@ -478,24 +516,30 @@ El Betting Service utilizará este endpoint para obtener la cuota vigente antes 
 
 El Settlement Service no tendrá como objetivo principal exponer endpoints directamente al cliente. Su funcionamiento estará basado principalmente en eventos.
 
-Cuando el Match Service detecte que un partido ha finalizado, publicará un evento `MatchFinished` mediante RabbitMQ.
+Cuando el Match Service detecte que un partido ha finalizado, accederá al siguiente endpoint:
 
-Evento:
+```http
+POST /internal/settlement/matches/{matchId}/finished
+Content-Type: application/json
+```
+
+Payload:
 
 ```json
 {
-  "event": "MatchFinished",
-  "matchId": 123,
+  "id": 123,
+  "competition": "Primera División",
+  "homeTeam": "Real Madrid",
+  "awayTeam": "Barcelona",
+  "dateTime": "2026-10-20T20:00:00",
+  "status": "FINISHED",
+  "matchDay": 8,
   "homeGoals": 2,
   "awayGoals": 1
 }
 ```
 
-El Settlement Service consumirá este evento y realizará las siguientes operaciones:
+No hay respuesta.
 
-1. Obtener las predicciones asociadas al partido.
-2. Determinar el resultado del partido.
-3. Identificar las predicciones ganadoras y perdedoras.
-4. Calcular las ganancias virtuales.
-5. Actualizar el saldo de los usuarios.
-6. Marcar las predicciones como liquidadas.
+
+
