@@ -1,5 +1,7 @@
 package com.bets_service.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,4 +27,10 @@ public class BetController {
         Long userId = Long.valueOf(jwt.getSubject());
         return bettingService.createBet(userId, request);
     }
+    
+
+	@GetMapping("/internal/match/{matchId}")
+	public List<BetResponse> getPendingBetsByMatch(@PathVariable Long matchId) {
+	    return bettingService.getPendingBetsByMatch(matchId);
+	}
 }

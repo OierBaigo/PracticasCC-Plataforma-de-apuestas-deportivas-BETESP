@@ -3,11 +3,13 @@ package com.match_service.service;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import com.match_service.client.SettlementServiceClient;
 import com.match_service.dto.FootballDataMatchResponse;
 import com.match_service.dto.FootballDataMatchesResponse;
 import com.match_service.exception.MatchNotExistsException;
@@ -21,6 +23,8 @@ public class MatchService {
     private MatchRepo matchRepository;
 	@Autowired
 	private RestClient footballDataRestClient;
+	@Autowired
+	private SettlementServiceClient settlementServiceClient;
 	
     public List<Match> getAllMatches() {
         return matchRepository.findAll();
@@ -54,7 +58,13 @@ public class MatchService {
         }
 
         for (FootballDataMatchResponse externalMatch : response.matches()) {
-        	Match match = matchRepository.findByExternalId(externalMatch.id()).orElseGet(Match::new);
+        	Optional<Match> existingMatch = matchRepository.findByExternalId(externalMatch.id());
+
+        	boolean newlyFinished = existingMatch.isPresent()
+        	        && existingMatch.get().getStatus() != StatusType.FINISHED
+        	        && "FINISHED".equals(externalMatch.status());
+
+        	Match match = existingMatch.orElseGet(Match::new);
 
             match.setExternalId(externalMatch.id());
             match.setHomeTeam(externalMatch.homeTeam().name());
@@ -83,6 +93,10 @@ public class MatchService {
                 match.setAwayScore(null);
             }
             matchRepository.save(match);
+            
+            if (newlyFinished) {
+                settlementServiceClient.notifyMatchFinished(match.getId());
+            }
         }
         return response.matches().size();
     }

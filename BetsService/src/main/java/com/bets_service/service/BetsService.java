@@ -2,6 +2,7 @@ package com.bets_service.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -104,4 +105,11 @@ public class BetsService {
                 bet.getCreatedAt()
         );
     }
+    
+
+	public List<BetResponse> getPendingBetsByMatch(Long matchId) {
+	    return betRepository.findByMatchIdAndStatus(matchId, BetStatus.PENDING).stream()
+	    		.map(bet -> toResponse(bet))
+	    		.toList();
+	}
 }
