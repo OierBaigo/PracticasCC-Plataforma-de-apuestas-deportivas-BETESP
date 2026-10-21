@@ -5,17 +5,22 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.match_service.client.SettlementServiceClient;
 import com.match_service.dto.FootballDataMatchResponse;
 import com.match_service.dto.FootballDataMatchesResponse;
+import com.match_service.dto.MatchResponse;
 import com.match_service.exception.MatchNotExistsException;
 import com.match_service.model.Match;
 import com.match_service.model.StatusType;
 import com.match_service.repository.MatchRepo;
+import com.match_service.service.MatchService;
 
 @Service
 public class MatchService {
@@ -25,6 +30,8 @@ public class MatchService {
 	private RestClient footballDataRestClient;
 	@Autowired
 	private SettlementServiceClient settlementServiceClient;
+	
+	private static final Logger log = LoggerFactory.getLogger(MatchService.class);
 	
     public List<Match> getAllMatches() {
         return matchRepository.findAll();
@@ -45,13 +52,18 @@ public class MatchService {
     }
     
     public int syncLaLigaMatches(Integer season) {
-
-        FootballDataMatchesResponse response = footballDataRestClient.get().uri(uriBuilder -> uriBuilder
-								                .path("/competitions/PD/matches")
-								                .queryParam("season", season)
-								                .build())
-        										.retrieve()
-        										.body(FootballDataMatchesResponse.class);
+    	FootballDataMatchesResponse response;
+        try { 
+        	response = footballDataRestClient.get().uri(uriBuilder -> uriBuilder
+	                .path("/competitions/PD/matches")
+	                .queryParam("season", season)
+	                .build())
+					.retrieve()
+					.body(FootballDataMatchesResponse.class);
+        } catch(RestClientResponseException ex) {
+        	throw ex;
+        }
+								                
 
         if (response == null || response.matches() == null) {
             throw new IllegalStateException("No se han recibido partidos de football-data.org");
@@ -95,7 +107,17 @@ public class MatchService {
             matchRepository.save(match);
             
             if (newlyFinished) {
-                settlementServiceClient.notifyMatchFinished(match.getId());
+            	log.info("LIQUIDACION 1: Partido {} detectado como FINISHED. Marcador {}-{}",
+                        match.getId(),
+                        match.getHomeScore(),
+                        match.getAwayScore());
+            	try {
+            		settlementServiceClient.notifyMatchFinished(match.getId(), toResponse(match));
+            		log.info("LIQUIDACION 2: Settlement Service respondió correctamente para partido {}",
+                            match.getId());
+            	} catch(RestClientResponseException ex) {
+                	throw ex;
+                }
             }
         }
         return response.matches().size();
@@ -117,4 +139,18 @@ public class MatchService {
             default -> throw new IllegalArgumentException("Estado externo no reconocido: " + externalStatus);
         };
     }
+    
+    private MatchResponse toResponse(Match match) {
+		return new MatchResponse(
+                match.getId(),
+                match.getHomeTeam(),
+                match.getAwayTeam(),
+                match.getDateTime(),
+                match.getCompetition(),
+                match.getMatchDay(),
+                match.getStatus(),
+                match.getHomeScore(),
+                match.getAwayScore()
+        );
+	}
 }

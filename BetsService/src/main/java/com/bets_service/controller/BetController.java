@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.bets_service.dto.BetResponse;
 import com.bets_service.dto.CreateBetRequest;
+import com.bets_service.dto.UpdateBetStatusRequest;
 import com.bets_service.service.BetsService;
 
 import jakarta.validation.Valid;
@@ -32,5 +33,11 @@ public class BetController {
 	@GetMapping("/internal/match/{matchId}")
 	public List<BetResponse> getPendingBetsByMatch(@PathVariable Long matchId) {
 	    return bettingService.getPendingBetsByMatch(matchId);
+	}
+	
+	@PostMapping("/internal/{betId}/status")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void updateBetStatus(@PathVariable Long betId, @RequestBody UpdateBetStatusRequest request) {
+	    bettingService.updateBetStatus(betId, request.status());
 	}
 }

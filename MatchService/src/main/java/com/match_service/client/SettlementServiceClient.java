@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import com.match_service.dto.MatchResponse;
 import com.match_service.security.ServiceTokenProvider;
 
 @Component
@@ -20,10 +21,11 @@ public class SettlementServiceClient {
         this.serviceTokenProvider = serviceTokenProvider;
     }
     
-    public void notifyMatchFinished(Long matchId) {
+    public void notifyMatchFinished(Long matchId, MatchResponse match) {
         restClient.post()
                 .uri(finishedMatchesPath, matchId)
                 .headers(headers -> headers.setBearerAuth(serviceTokenProvider.createToken()))
+                .body(match)
                 .retrieve()
                 .toBodilessEntity();
     }

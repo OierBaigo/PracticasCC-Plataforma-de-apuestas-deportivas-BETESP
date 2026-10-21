@@ -7,6 +7,7 @@ import com.odds_service.model.Odd;
 import com.odds_service.repository.OddRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +27,12 @@ public class OddsUpdateService {
     }
 
     public void updateAllOdds() {
-        List<MatchResponse> matches = matchServiceClient.getMatches();
+    	List<MatchResponse> matches;
+        try {
+        	matches = matchServiceClient.getMatches();
+        } catch(RestClientResponseException ex) {
+        	throw ex;
+        }
 
         for (MatchResponse match : matches) {
             if (match.id() == null) {

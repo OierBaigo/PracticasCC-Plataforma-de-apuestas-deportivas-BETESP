@@ -101,7 +101,6 @@ public class UserService {
 		return new BalanceResponse(user.getBalance());
 	}
 	
-	
 	public List<TransactionResponse> getTransactions(Long userId) {
 		userRepo.findById(userId).orElseThrow(() ->
         			new UserNotExistsException("Usuario no encontrado"));

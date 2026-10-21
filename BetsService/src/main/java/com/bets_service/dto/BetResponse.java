@@ -7,6 +7,7 @@ import com.bets_service.model.ResultType;
 
 public record BetResponse(
     Long id,
+    Long userId,
     Long matchId,
     ResultType resultType,
     Double stake,

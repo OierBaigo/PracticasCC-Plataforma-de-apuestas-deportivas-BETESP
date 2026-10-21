@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +69,11 @@ public class UserController {
 	public List<TransactionResponse> getTransactions(@AuthenticationPrincipal Jwt jwt) {
 		Long userId = Long.valueOf(jwt.getSubject());
 		return userService.getTransactions(userId);
+	}
+	
+	@PostMapping(value = "/internal/{userId}/deposit")
+	@ResponseStatus(HttpStatus.OK)
+	public BalanceResponse internalDeposit(@PathVariable Long userId, @Valid @RequestBody AmountRequest request) {
+		return userService.deposit(userId, request.amount());
 	}
 }
