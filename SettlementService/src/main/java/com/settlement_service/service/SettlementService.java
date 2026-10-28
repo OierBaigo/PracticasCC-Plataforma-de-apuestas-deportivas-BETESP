@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -16,26 +15,29 @@ import com.settlement_service.model.ResultType;
 
 @Service
 public class SettlementService {
-	@Autowired
-	private BetServiceClient betServiceClient;
-	@Autowired
-	private UserServiceClient userServiceClient;
+	private final BetServiceClient betServiceClient;
+	private final UserServiceClient userServiceClient;
 
     private static final Logger log = LoggerFactory.getLogger(SettlementService.class);
+
+    SettlementService(BetServiceClient betServiceClient, UserServiceClient userServiceClient) {
+        this.betServiceClient = betServiceClient;
+        this.userServiceClient = userServiceClient;
+    }
 
     public void handleFinishedMatch(Long matchId, MatchResponse match) {
         log.info("Recibida notificación de partido finalizado: {}", matchId);
         System.out.println("Recibida notificación de partido finalizado: " + matchId);
         
-        if (!matchId.equals(match.id())) {
+        if (isDifferentMatch(matchId, match)) {
             throw new IllegalArgumentException("El ID de la ruta no coincide con el ID del partido");
         }
 
-        if (!"FINISHED".equals(match.status())) {
+        if (matchNotFinished(match)) {
             throw new IllegalArgumentException("El partido todavía no ha finalizado");
         }
 
-        if (match.homeScore() == null || match.awayScore() == null) {
+        if (matchWithoutResult(match)) {
             throw new IllegalArgumentException("El partido no tiene un resultado completo");
         }
         
@@ -44,9 +46,9 @@ public class SettlementService {
         
         ResultType result;
 
-        if (match.homeScore() > match.awayScore()) {
+        if (isHomeWin(match)) {
             result = ResultType.HOME_WIN;
-        } else if (match.homeScore() < match.awayScore()) {
+        } else if (isAwayWin(match)) {
             result = ResultType.AWAY_WIN;
         } else {
             result = ResultType.DRAW;
@@ -65,7 +67,7 @@ public class SettlementService {
                 bets.size(), matchId);
         
         for(BetResponse bet: bets) {
-        	if(ResultType.valueOf(bet.resultType()) == result) {
+        	if(isWinnedBet(result, bet)) {
         		try {
         			log.info("LIQUIDACION 10: Depositando {} al usuario {} por apuesta {}",
         	                bet.potentialReturn(), bet.userId(), bet.id());
@@ -90,4 +92,28 @@ public class SettlementService {
         	}
         }
     }
+
+	private boolean isWinnedBet(ResultType result, BetResponse bet) {
+		return ResultType.valueOf(bet.resultType()) == result;
+	}
+
+	private boolean isAwayWin(MatchResponse match) {
+		return match.homeScore() < match.awayScore();
+	}
+
+	private boolean isHomeWin(MatchResponse match) {
+		return match.homeScore() > match.awayScore();
+	}
+
+	private boolean matchWithoutResult(MatchResponse match) {
+		return match.homeScore() == null || match.awayScore() == null;
+	}
+
+	private boolean matchNotFinished(MatchResponse match) {
+		return !"FINISHED".equals(match.status());
+	}
+
+	private boolean isDifferentMatch(Long matchId, MatchResponse match) {
+		return !matchId.equals(match.id());
+	}
 }

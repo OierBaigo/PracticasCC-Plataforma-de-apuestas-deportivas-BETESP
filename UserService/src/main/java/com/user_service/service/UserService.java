@@ -89,7 +89,7 @@ public class UserService {
 		User user = userRepo.findByIdForUpdate(userId).orElseThrow(() ->
 		            new UserNotExistsException("Usuario no encontrado"));
 		
-		if (user.getBalance() < amount) {
+		if (isBalanceLessThanAmount(amount, user)) {
 	        throw new InsufficientBalanceException("No tienes saldo suficiente para realizar esta operación");
 	    }
 		
@@ -101,6 +101,10 @@ public class UserService {
 		transactionRepo.save(transaction);
 		
 		return new BalanceResponse(user.getBalance());
+	}
+
+	private boolean isBalanceLessThanAmount(Double amount, User user) {
+		return user.getBalance() < amount;
 	}
 	
 	public List<TransactionResponse> getTransactions(Long userId) {

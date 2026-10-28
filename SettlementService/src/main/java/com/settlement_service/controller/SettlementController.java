@@ -5,7 +5,6 @@ import com.settlement_service.service.SettlementService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +12,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/internal/settlement")
 public class SettlementController {
 
-	@Autowired
-    private SettlementService settlementService;
+	private final SettlementService settlementService;
 	
 	private static final Logger log = LoggerFactory.getLogger(SettlementController.class);
+
+    SettlementController(SettlementService settlementService) {
+        this.settlementService = settlementService;
+    }
 
     @PostMapping("/matches/{matchId}/finished")
     @ResponseStatus(HttpStatus.ACCEPTED)
