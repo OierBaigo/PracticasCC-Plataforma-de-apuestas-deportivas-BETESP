@@ -2,7 +2,6 @@ package com.user_service.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -27,8 +26,11 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping(value = "user")
 public class UserController {
-	@Autowired
-	private UserService userService;
+	private final UserService userService;
+
+	UserController(UserService userService) {
+		this.userService = userService;
+	}
 	
 	@PostMapping(value = "/register")
 	@ResponseStatus(HttpStatus.CREATED)

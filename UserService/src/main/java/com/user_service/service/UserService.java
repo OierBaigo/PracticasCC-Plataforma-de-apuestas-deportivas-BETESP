@@ -2,7 +2,6 @@ package com.user_service.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,14 +23,17 @@ import com.user_service.security.JwtService;
 
 @Service
 public class UserService {
-	@Autowired
-	private UserRepo userRepo;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	@Autowired 
-	private JwtService jwtService;
-	@Autowired
-	private TransactionRepo transactionRepo;
+	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
+	private final TransactionRepo transactionRepo;
+
+	UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, JwtService jwtService, TransactionRepo transactionRepo) {
+		this.userRepo = userRepo;
+		this.passwordEncoder = passwordEncoder;
+		this.jwtService = jwtService;
+		this.transactionRepo = transactionRepo;
+	}
 	
 	public RegisterResponse registerUser(RegisterRequest request) {
 		
