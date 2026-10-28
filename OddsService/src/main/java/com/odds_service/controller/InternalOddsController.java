@@ -4,7 +4,6 @@ import com.odds_service.dto.OddResponse;
 import com.odds_service.model.Odd;
 import com.odds_service.repository.OddRepo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/internal/odds")
 public class InternalOddsController {
 
-	@Autowired
-    private OddRepo oddRepository;
+	private final OddRepo oddRepository;
+
+    InternalOddsController(OddRepo oddRepository) {
+        this.oddRepository = oddRepository;
+    }
 
     @GetMapping("/match/{matchId}")
     public List<OddResponse> getOddsByMatch(@PathVariable Long matchId) {

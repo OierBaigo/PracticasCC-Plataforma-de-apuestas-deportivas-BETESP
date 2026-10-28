@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,16 +37,24 @@ public class OddsUpdateService {
             if (match.id() == null) {
                 continue;
             }
-            if ("FINISHED".equalsIgnoreCase(match.status())) {
+            if (isMatchFinished(match)) {
                 deactivateOdds(match.id());
                 continue;
             }
-            if (!"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status())) {
+            if (matchIsNotScheduledOrTimed(match)) {
                 continue;
             }
             updateMatchOdds(match);
         }
     }
+
+	private boolean matchIsNotScheduledOrTimed(MatchResponse match) {
+		return !"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status());
+	}
+
+	private boolean isMatchFinished(MatchResponse match) {
+		return "FINISHED".equalsIgnoreCase(match.status());
+	}
 
     @Transactional
     public void updateMatchOdds(MatchResponse match) {

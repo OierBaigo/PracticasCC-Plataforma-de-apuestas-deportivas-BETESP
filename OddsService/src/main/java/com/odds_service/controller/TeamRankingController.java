@@ -2,7 +2,6 @@ package com.odds_service.controller;
 
 import com.odds_service.service.TeamRankingService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

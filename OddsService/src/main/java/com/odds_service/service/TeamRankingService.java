@@ -3,7 +3,6 @@ package com.odds_service.service;
 import com.odds_service.model.TeamRanking;
 import com.odds_service.repository.TeamRankingRepo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +12,11 @@ import java.util.Map;
 @Service
 public class TeamRankingService {
 
-	@Autowired
-    private TeamRankingRepo rankingRepo;
+	private final TeamRankingRepo rankingRepo;
+
+    TeamRankingService(TeamRankingRepo rankingRepo) {
+        this.rankingRepo = rankingRepo;
+    }
 
     @Transactional
     public int insertInitialRankings() {

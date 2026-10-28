@@ -5,8 +5,6 @@ import com.odds_service.repository.TeamRankingRepo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Optional;
 
 @Service
@@ -29,7 +27,7 @@ public class OddsCalculatorService {
 
         Optional<TeamRanking> awayRanking = rankingRepository.findByTeamNameIgnoreCase(awayTeam);
 
-        if (homeRanking.isEmpty() || awayRanking.isEmpty()) {
+        if (rankingsAreNullOrEmpty(homeRanking, awayRanking)) {
             return Optional.empty();
         }
 
@@ -55,6 +53,10 @@ public class OddsCalculatorService {
 
         return Optional.of(new CalculatedOdds(toOdds(homeProbability), toOdds(drawProbability), toOdds(awayProbability)));
     }
+
+	private boolean rankingsAreNullOrEmpty(Optional<TeamRanking> homeRanking, Optional<TeamRanking> awayRanking) {
+		return homeRanking.isEmpty() || awayRanking.isEmpty();
+	}
 
     private Double toOdds(double probability) {
     	return 1.0 / (probability * (1.0 + margin));
