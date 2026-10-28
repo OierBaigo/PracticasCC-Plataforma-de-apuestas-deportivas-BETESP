@@ -31,12 +31,16 @@ public class UserServiceClient {
                 .retrieve()
                 .body(BalanceResponse.class);
 
-        if (response == null || response.balance() == null || !Double.isFinite(response.balance())) {
+        if (balanceInvalid(response)) {
             throw new IllegalStateException("User Service devolvió un saldo inválido");
         }
 
         return response.balance();
     }
+
+	private boolean balanceInvalid(BalanceResponse response) {
+		return response == null || response.balance() == null || !Double.isFinite(response.balance());
+	}
 
     public void withdrawBalance(Double amount) {
 

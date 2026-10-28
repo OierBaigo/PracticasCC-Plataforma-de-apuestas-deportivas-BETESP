@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientResponseException;
@@ -22,18 +21,21 @@ import com.bets_service.repository.BetRepo;
 @Service
 public class BetsService {
 	
-	@Autowired
-    private BetRepo betRepository;
-	@Autowired
-    private MatchServiceClient matchServiceClient;
-	@Autowired
-    private OddsServiceClient oddsServiceClient;
-	@Autowired
-    private UserServiceClient userServiceClient;
+	private final BetRepo betRepository;
+	private final MatchServiceClient matchServiceClient;
+	private final OddsServiceClient oddsServiceClient;
+	private final UserServiceClient userServiceClient;
+
+    BetsService(BetRepo betRepository, MatchServiceClient matchServiceClient, OddsServiceClient oddsServiceClient, UserServiceClient userServiceClient) {
+        this.betRepository = betRepository;
+        this.matchServiceClient = matchServiceClient;
+        this.oddsServiceClient = oddsServiceClient;
+        this.userServiceClient = userServiceClient;
+    }
 
     @Transactional
     public BetResponse createBet(Long userId, CreateBetRequest request) {
-        if (request.stake() == null || !Double.isFinite(request.stake()) || request.stake() <= 0) {
+        if (isStakePositive(request)) {
             throw new IllegalArgumentException("El importe de la apuesta debe ser positivo");
         }
         
@@ -45,7 +47,7 @@ public class BetsService {
         }
         
         
-        if (match == null || (!"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status()))) {
+        if (match == null || matchStatusIsNotFinishedOrTimed(match)) {
             throw new IllegalArgumentException("El partido no está disponible para apostar");
         }
         
@@ -56,7 +58,7 @@ public class BetsService {
         	throw ex;
         }
                 
-        if (odds == null || !Double.isFinite(odds) || odds <= 1.0) {
+        if (isOddInvalid(odds)) {
             throw new IllegalStateException("La cuota no es válida");
         }
         
@@ -67,11 +69,11 @@ public class BetsService {
         	throw ex;
         }
         
-        if (balance == null || !Double.isFinite(balance)) {
+        if (isBalanceInvalid(balance)) {
             throw new IllegalStateException("El saldo no es válido");
         }
 
-        if (balance < request.stake()) {
+        if (isBalanceLessThanAmount(request, balance)) {
             throw new IllegalArgumentException( "No tienes saldo suficiente para realizar la apuesta");
         }
 
@@ -100,6 +102,26 @@ public class BetsService {
         return toResponse(savedBet);
     }
 
+	private boolean isBalanceLessThanAmount(CreateBetRequest request, Double balance) {
+		return balance < request.stake();
+	}
+
+	private boolean isBalanceInvalid(Double balance) {
+		return balance == null || !Double.isFinite(balance);
+	}
+
+	private boolean isOddInvalid(Double odds) {
+		return isBalanceInvalid(odds) || odds <= 1.0;
+	}
+
+	private boolean matchStatusIsNotFinishedOrTimed(MatchResponse match) {
+		return !"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status());
+	}
+
+	private boolean isStakePositive(CreateBetRequest request) {
+		return request.stake() == null || !Double.isFinite(request.stake()) || request.stake() <= 0;
+	}
+
     private BetResponse toResponse(Bet bet) {
         return new BetResponse(
                 bet.getId(),
@@ -125,11 +147,15 @@ public class BetsService {
 	public void updateBetStatus(Long betId, BetStatus status) {
 	    Bet bet = betRepository.findById(betId).orElseThrow(() -> new IllegalArgumentException("No existe la apuesta con ID: " + betId));
 
-	    if (bet.getStatus() != BetStatus.PENDING) {
+	    if (isBalanceStatusNotPending(bet)) {
 	        throw new IllegalStateException("La apuesta ya ha sido procesada: " + betId);
 	    }
 
 	    bet.setStatus(status);
 	    betRepository.save(bet);
+	}
+
+	private boolean isBalanceStatusNotPending(Bet bet) {
+		return bet.getStatus() != BetStatus.PENDING;
 	}
 }

@@ -1,7 +1,6 @@
 package com.match_service.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;

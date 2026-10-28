@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -24,14 +23,17 @@ import com.match_service.service.MatchService;
 
 @Service
 public class MatchService {
-	@Autowired
-    private MatchRepo matchRepository;
-	@Autowired
-	private RestClient footballDataRestClient;
-	@Autowired
-	private SettlementServiceClient settlementServiceClient;
+	private final MatchRepo matchRepository;
+	private final RestClient footballDataRestClient;
+	private final SettlementServiceClient settlementServiceClient;
 	
 	private static final Logger log = LoggerFactory.getLogger(MatchService.class);
+
+    MatchService(MatchRepo matchRepository, RestClient footballDataRestClient, SettlementServiceClient settlementServiceClient) {
+        this.matchRepository = matchRepository;
+        this.footballDataRestClient = footballDataRestClient;
+        this.settlementServiceClient = settlementServiceClient;
+    }
 	
     public List<Match> getAllMatches() {
         return matchRepository.findAll();
@@ -65,7 +67,7 @@ public class MatchService {
         }
 								                
 
-        if (response == null || response.matches() == null) {
+        if (isResponseNull(response)) {
             throw new IllegalStateException("No se han recibido partidos de football-data.org");
         }
 
@@ -95,7 +97,7 @@ public class MatchService {
             match.setCompetition("LaLiga");
             match.setStatus(mapStatus(externalMatch.status()));
 
-            if (externalMatch.score() != null && externalMatch.score().fullTime() != null) {
+            if (scoreAndFullTimeAreNotNull(externalMatch)) {
 
                 match.setHomeScore(externalMatch.score().fullTime().home());
 
@@ -122,6 +124,14 @@ public class MatchService {
         }
         return response.matches().size();
     }
+
+	private boolean scoreAndFullTimeAreNotNull(FootballDataMatchResponse externalMatch) {
+		return externalMatch.score() != null && externalMatch.score().fullTime() != null;
+	}
+
+	private boolean isResponseNull(FootballDataMatchesResponse response) {
+		return response == null || response.matches() == null;
+	}
     
     private StatusType mapStatus(String externalStatus) {
         return switch (externalStatus) {
