@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     @Bean
-    public JwtDecoder jwtDecoder(@Value("${JWT_SECRET}") String secret) {
+    public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secret) {
 
         byte[] keyBytes = Base64.getDecoder().decode(secret);
 
@@ -43,7 +43,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .anyRequest().hasAnyRole("ADMIN", "SERVICE")
             )
             .oauth2ResourceServer(oauth2 -> oauth2

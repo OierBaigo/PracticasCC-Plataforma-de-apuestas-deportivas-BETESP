@@ -12,8 +12,11 @@ import java.util.Map;
 @RequestMapping("/admin/rankings")
 public class TeamRankingController {
 
-	@Autowired
-    private TeamRankingService rankingService;
+	private final TeamRankingService rankingService;
+
+    TeamRankingController(TeamRankingService rankingService) {
+        this.rankingService = rankingService;
+    }
 
     @PostMapping("/initialize")
     public ResponseEntity<Map<String, Object>> initializeRankings() {

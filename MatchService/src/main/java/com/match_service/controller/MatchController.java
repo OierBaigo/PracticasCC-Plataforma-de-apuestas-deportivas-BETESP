@@ -2,7 +2,6 @@ package com.match_service.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.match_service.client.SettlementServiceClient;
 import com.match_service.dto.MatchResponse;
 import com.match_service.dto.SyncMatchRequest;
+import com.match_service.dto.SyncStatusResponse;
 import com.match_service.model.Match;
+import com.match_service.model.MatchSyncStatus;
 import com.match_service.model.StatusType;
 import com.match_service.repository.MatchRepo;
 import com.match_service.service.MatchService;
@@ -25,12 +26,21 @@ import com.match_service.service.MatchService;
 @RestController
 @RequestMapping(value = "matches")
 public class MatchController {
-	@Autowired
-	private MatchService matchService;
-	@Autowired
-	private MatchRepo matchRepo;
-	@Autowired
-	private SettlementServiceClient settlementServiceClient;
+	
+	private final MatchService matchService;
+	private final MatchRepo matchRepo;
+	private final SettlementServiceClient settlementServiceClient;
+    private final MatchSyncStatus matchSyncStatus;
+
+
+	MatchController(MatchService matchService, MatchRepo matchRepo, SettlementServiceClient settlementServiceClient,
+			MatchSyncStatus matchSyncStatus) {
+		this.matchService = matchService;
+		this.matchRepo = matchRepo;
+		this.settlementServiceClient = settlementServiceClient;
+		this.matchSyncStatus = matchSyncStatus;
+	}
+	
 	
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
@@ -107,4 +117,9 @@ public class MatchController {
 
 	    return ResponseEntity.ok("Notificación de prueba enviada a Settlement Service");
 	}
+	
+	@GetMapping("/internal/sync-status")
+    public SyncStatusResponse getSyncStatus() {
+        return new SyncStatusResponse(matchSyncStatus.isInitialSyncCompleted());
+    }
 }

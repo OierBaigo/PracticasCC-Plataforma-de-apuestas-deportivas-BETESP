@@ -28,22 +28,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.securityMatcher(PathRequest.toH2Console())
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            )
-            .csrf(csrf -> csrf.disable())
-            .headers(headers ->
-                headers.frameOptions(frame -> frame.sameOrigin())
-            );
-
-        return http.build();
-    }
-
-    @Bean
     public SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(auth -> auth
@@ -51,7 +35,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/user/me").authenticated()
                 .requestMatchers(HttpMethod.POST, "/user/internal/**").hasAnyRole("ADMIN","SERVICE")
-                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

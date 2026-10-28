@@ -45,7 +45,7 @@ public class BetsService {
         }
         
         
-        if (match == null || !"SCHEDULED".equalsIgnoreCase(match.status())) {
+        if (match == null || (!"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status()))) {
             throw new IllegalArgumentException("El partido no está disponible para apostar");
         }
         

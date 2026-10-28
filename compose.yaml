@@ -1,0 +1,125 @@
+name: betesp
+services:
+  postgres:
+    image: postgres:17
+    container_name: betesp-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: betesp_users
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - betesp-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  userservice:
+    build: ./UserService
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betesp_users
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - betesp-edge
+      - betesp-backend
+      - betesp-db
+    restart: unless-stopped
+
+  matchservice:
+    build: ./MatchService
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betesp_matches
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      FOOTBALL_DATA_API_KEY: ${FOOTBALL_DATA_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      userservice:
+        condition: service_healthy
+      settlementservice:
+        condition: service_healthy
+    networks:
+      - betesp-edge
+      - betesp-backend
+      - betesp-db
+    restart: unless-stopped
+
+  oddsservice:
+    build: ./OddsService
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betesp_odds
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      matchservice:
+        condition: service_healthy
+    networks:
+      - betesp-backend
+      - betesp-db
+    restart: unless-stopped
+
+  betsservice:
+    build: ./BetsService
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/betesp_bets
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      matchservice:
+        condition: service_healthy
+    networks:
+      - betesp-backend
+      - betesp-db
+      - betesp-edge
+    restart: unless-stopped
+
+  settlementservice:
+    build: ./SettlementService
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - betesp-backend
+    restart: unless-stopped
+
+networks:
+  betesp-edge:
+    name: betesp-edge
+    driver: bridge
+
+  betesp-backend:
+    name: betesp-backend
+    driver: bridge
+    internal: true
+
+  betesp-db:
+    name: betesp-db
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres_data:
+    name: betesp-postgres-data

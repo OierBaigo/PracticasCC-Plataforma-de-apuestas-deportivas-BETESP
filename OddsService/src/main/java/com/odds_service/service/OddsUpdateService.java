@@ -42,7 +42,7 @@ public class OddsUpdateService {
                 deactivateOdds(match.id());
                 continue;
             }
-            if (!"SCHEDULED".equalsIgnoreCase(match.status())) {
+            if (!"SCHEDULED".equalsIgnoreCase(match.status()) && !"TIMED".equalsIgnoreCase(match.status())) {
                 continue;
             }
             updateMatchOdds(match);

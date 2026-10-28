@@ -26,22 +26,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
-	
-	@Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.securityMatcher(PathRequest.toH2Console())
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            )
-            .csrf(csrf -> csrf.disable())
-            .headers(headers ->
-                headers.frameOptions(frame -> frame.sameOrigin())
-            );
-
-        return http.build();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -50,8 +34,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/h2-console/**").permitAll()
-            	.requestMatchers(HttpMethod.POST,"/matches/internal/sync").hasRole("ADMIN")
+            	.requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+            	.requestMatchers(HttpMethod.POST,"/matches/internal/**").hasAnyRole("ADMIN","SERVICE")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

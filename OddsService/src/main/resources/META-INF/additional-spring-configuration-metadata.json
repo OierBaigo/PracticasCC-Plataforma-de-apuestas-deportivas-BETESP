@@ -28,5 +28,10 @@
     "name": "odds.model.margin",
     "type": "java.lang.String",
     "description": "A description for 'odds.model.margin'"
+  },
+  {
+    "name": "match-service.matches-sync-status-path",
+    "type": "java.lang.String",
+    "description": "A description for 'match-service.matches-sync-status-path'"
   }
 ]}
