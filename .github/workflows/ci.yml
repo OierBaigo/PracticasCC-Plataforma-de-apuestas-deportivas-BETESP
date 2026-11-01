@@ -67,3 +67,42 @@ jobs:
       - name: Build and run tests
         run: ./mvnw -B clean verify
         working-directory: ${{ matrix.service }}
+  
+  lint:
+    name: Lint ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - UserService
+          - MatchService
+          - OddsService
+          - BetsService
+          - SettlementService
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: ${{ matrix.service }}/pom.xml
+
+      - name: Run Checkstyle
+        run: |
+          chmod +x mvnw
+          ./mvnw -B org.apache.maven.plugins:maven-checkstyle-plugin:3.6.0:check \
+            -Dcheckstyle.config.location=sun_checks.xml
+        working-directory: ${{ matrix.service }}
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.service }}/Dockerfile
+          failure-threshold: warning
