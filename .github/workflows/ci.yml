@@ -45,6 +45,7 @@ jobs:
       SPRING_DATASOURCE_USERNAME: betesp
       SPRING_DATASOURCE_PASSWORD: betesp_ci_password
       JWT_SECRET: YmV0ZXNwLWNpLXRlc3Qtc2VjcmV0LWtleS1mb3ItZ2l0aHViLWFjdGlvbnMtMjAyNg==
+      FOOTBALL_DATA_API_KEY: "valor-de-prueba-para-ci"
 
     steps:
       - name: Checkout repository
