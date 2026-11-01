@@ -8,18 +8,42 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and test microservices
+    name: Build and test ${{ matrix.service }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        service:
-          - UserService
-          - MatchService
-          - OddsService
-          - BetsService
-          - SettlementService
+        include:
+          - service: UserService
+            database: betesp_users
+          - service: MatchService
+            database: betesp_matches
+          - service: OddsService
+            database: betesp_odds
+          - service: BetsService
+            database: betesp_bets
+          - service: SettlementService
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: betesp
+          POSTGRES_PASSWORD: betesp_ci_password
+          POSTGRES_DB: ${{ matrix.database }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U betesp -d ${{ matrix.database }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ matrix.database }}
+      SPRING_DATASOURCE_USERNAME: betesp
+      SPRING_DATASOURCE_PASSWORD: betesp_ci_password
 
     steps:
       - name: Checkout repository
