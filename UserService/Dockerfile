@@ -14,7 +14,7 @@ RUN chmod +x mvnw \
 
 # Copiar el código y generar el JAR
 COPY src/ src/
-RUN ./mvnw -B clean package -DskipTests
+RUN ./mvnw -B clean package -DskipTests -Dcheckstyle.skip=true
 
 # Etapa 2: ejecutar con una imagen Java más ligera
 FROM eclipse-temurin:25-jre

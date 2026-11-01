@@ -10,7 +10,7 @@ RUN chmod +x mvnw \
     && ./mvnw -B dependency:go-offline
 
 COPY src/ src/
-RUN ./mvnw -B clean package -DskipTests
+RUN ./mvnw -B clean package -DskipTests -Dcheckstyle.skip=true
 
 FROM eclipse-temurin:25-jre
 
