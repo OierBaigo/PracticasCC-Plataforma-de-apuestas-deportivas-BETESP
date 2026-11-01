@@ -6,8 +6,8 @@ COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY mvnw .
 
-RUN chmod +x mvnw
-RUN ./mvnw -B dependency:go-offline
+RUN chmod +x mvnw \
+    && ./mvnw -B dependency:go-offline
 
 COPY src/ src/
 RUN ./mvnw -B clean package -DskipTests
@@ -17,7 +17,7 @@ FROM eclipse-temurin:25-jre
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl=8.18.0-1ubuntu2.8 \
     && rm -rf /var/lib/apt/lists/*
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=60s --retries=5 \

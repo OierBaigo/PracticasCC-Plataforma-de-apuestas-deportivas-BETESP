@@ -8,10 +8,9 @@ COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY mvnw .
 
-RUN chmod +x mvnw
-
 # Descargar dependencias antes de copiar el código fuente
-RUN ./mvnw -B dependency:go-offline
+RUN chmod +x mvnw \
+    && ./mvnw -B dependency:go-offline
 
 # Copiar el código y generar el JAR
 COPY src/ src/
@@ -24,7 +23,7 @@ WORKDIR /app
 
 #Instalar curl para la verificación de salud
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl=8.18.0-1ubuntu2.8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Verificación de salud para asegurarse de que el servicio esté activo
