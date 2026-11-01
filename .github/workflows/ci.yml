@@ -44,7 +44,7 @@ jobs:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ matrix.database }}
       SPRING_DATASOURCE_USERNAME: betesp
       SPRING_DATASOURCE_PASSWORD: betesp_ci_password
-      JWT_SECRET: betesp_ci_test_secret_key_12345678901234567890
+      JWT_SECRET: YmV0ZXNwLWNpLXRlc3Qtc2VjcmV0LWtleS1mb3ItZ2l0aHViLWFjdGlvbnMtMjAyNg==
 
     steps:
       - name: Checkout repository
