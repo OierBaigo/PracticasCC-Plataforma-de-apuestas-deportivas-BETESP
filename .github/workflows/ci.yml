@@ -24,6 +24,7 @@ jobs:
           - service: BetsService
             database: betesp_bets
           - service: SettlementService
+            database: betesp_settlements
 
     services:
       postgres:
