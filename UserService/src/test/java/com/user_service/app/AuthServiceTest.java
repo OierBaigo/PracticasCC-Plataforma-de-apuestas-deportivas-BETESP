@@ -1,5 +1,4 @@
-
-package com.user_service.service;
+package com.user_service.app;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -18,6 +17,7 @@ import com.user_service.exception.InvalidCredentialsException;
 import com.user_service.model.User;
 import com.user_service.repository.UserRepo;
 import com.user_service.security.JwtService;
+import com.user_service.service.AuthService;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
