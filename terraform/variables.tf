@@ -15,3 +15,14 @@ variable "vnet_address_space" {
   type        = list(string)
   default     = ["10.0.0.0/16"]
 }
+
+variable "ssh_public_key" {
+  description = "Clave pública SSH para acceder a la máquina virtual"
+  type        = string
+  sensitive   = true
+}
+
+variable "admin_source_cidr" {
+  description = "IP pública autorizada para acceder por SSH"
+  type        = string
+}

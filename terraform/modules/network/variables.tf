@@ -12,3 +12,8 @@ variable "vnet_address_space" {
   description = "Rango de direcciones IP de la red virtual"
   type        = list(string)
 }
+
+variable "admin_source_cidr" {
+  description = "IP pública autorizada para acceder por SSH"
+  type        = string
+}

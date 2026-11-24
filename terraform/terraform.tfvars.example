@@ -1,0 +1,5 @@
+location = "region"
+
+ssh_public_key = "clave"
+
+admin_source_cidr = "direccion/32"
