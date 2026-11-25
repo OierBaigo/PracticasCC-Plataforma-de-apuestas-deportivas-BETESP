@@ -1,3 +1,4 @@
+
 terraform {
   required_providers {
     azurerm = {
@@ -5,6 +6,7 @@ terraform {
       version = "~> 5.0"
     }
   }
+
   backend "azurerm" {
     resource_group_name  = "rg-betesp-tfstate"
     storage_account_name = "stbetespstate37826"
@@ -17,5 +19,9 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }

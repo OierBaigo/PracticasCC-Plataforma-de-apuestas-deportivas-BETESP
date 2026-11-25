@@ -8,7 +8,12 @@ output "subscription_name" {
   value       = data.azurerm_subscription.current.display_name
 }
 
-output "vm_public_ip" {
-  description = "IP pública de la máquina virtual BETESP"
-  value       = module.compute.public_ip_address
+output "postgres_private_ip" {
+  description = "IP privada de la VM PostgreSQL"
+  value       = module.database.private_ip
+}
+
+output "container_app_urls" {
+  description = "Direcciones internas de los microservicios"
+  value       = module.container_apps.app_fqdns
 }

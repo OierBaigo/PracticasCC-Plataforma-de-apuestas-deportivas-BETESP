@@ -1,0 +1,101 @@
+
+#cloud-config
+package_update: true
+
+packages:
+  - curl
+  - ca-certificates
+  - gnupg
+
+write_files:
+  - path: /usr/local/sbin/install-postgresql.sh
+    permissions: "0700"
+    owner: root:root
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      APP_DB_USER="${administrator_login}"
+      APP_DB_PASSWORD_B64="${administrator_password_b64}"
+      APP_DB_PASSWORD="$(printf '%s' "$APP_DB_PASSWORD_B64" | base64 --decode)"
+
+      # Configurar el repositorio oficial de PostgreSQL.
+      install -d /usr/share/postgresql-common/pgdg
+      curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+        | gpg --dearmor --yes -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg
+
+      echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg] https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" \
+        > /etc/apt/sources.list.d/pgdg.list
+
+      apt-get update
+      DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-17
+
+      # Configurar PostgreSQL.
+      cat > /etc/postgresql/17/main/conf.d/betesp.conf <<'EOF'
+      listen_addresses = '*'
+      password_encryption = 'scram-sha-256'
+      EOF
+
+      # Añadir la regla de acceso solo si todavía no existe.
+      grep -qxF 'host all all 10.0.0.0/23 scram-sha-256' /etc/postgresql/17/main/pg_hba.conf || \
+        echo 'host all all 10.0.0.0/23 scram-sha-256' >> /etc/postgresql/17/main/pg_hba.conf
+
+      systemctl enable postgresql
+      systemctl restart postgresql
+
+      # Esperar a que PostgreSQL acepte conexiones.
+      for attempt in $(seq 1 30); do
+        if pg_isready -q; then
+          break
+        fi
+        sleep 2
+      done
+
+      pg_isready
+
+      # Crear o actualizar el usuario administrador.
+      sudo -u postgres psql -v ON_ERROR_STOP=1 \
+        --set=app_user="$APP_DB_USER" \
+        --set=app_password="$APP_DB_PASSWORD" <<'SQL'
+      SELECT format(
+        'CREATE ROLE %I LOGIN PASSWORD %L',
+        :'app_user',
+        :'app_password'
+      )
+      WHERE NOT EXISTS (
+        SELECT FROM pg_roles WHERE rolname = :'app_user'
+      ) \gexec
+
+      SELECT format(
+        'ALTER ROLE %I WITH LOGIN PASSWORD %L',
+        :'app_user',
+        :'app_password'
+      ) \gexec
+      SQL
+
+      # Crear las bases de datos si todavía no existen.
+      for db in betesp_users betesp_matches betesp_odds betesp_bets; do
+        sudo -u postgres psql -v ON_ERROR_STOP=1 \
+          --set=app_user="$APP_DB_USER" \
+          --set=db_name="$db" <<'SQL'
+      SELECT format(
+        'CREATE DATABASE %I OWNER %I',
+        :'db_name',
+        :'app_user'
+      )
+      WHERE NOT EXISTS (
+        SELECT FROM pg_database WHERE datname = :'db_name'
+      ) \gexec
+      SQL
+      done
+
+      # Verificar que las cuatro bases de datos existen.
+      for db in betesp_users betesp_matches betesp_odds betesp_bets; do
+        sudo -u postgres psql -v ON_ERROR_STOP=1 \
+          -tAc "SELECT 1 FROM pg_database WHERE datname = '$db'" | grep -qx 1
+      done
+
+      unset APP_DB_PASSWORD APP_DB_PASSWORD_B64
+
+runcmd:
+  - [bash, /usr/local/sbin/install-postgresql.sh]

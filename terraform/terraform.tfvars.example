@@ -1,5 +1,5 @@
 location = "region"
-
-ssh_public_key = "clave"
-
-admin_source_cidr = "direccion/32"
+postgres_admin_login = "nombre"
+postgres_admin_password = "clave"
+jwt_secret            = "TU_SECRETO_JWT"
+football_data_api_key = "TU_API_KEY"
